@@ -1,0 +1,63 @@
+{
+  "manifest": {
+    "publishingInformation": {
+      "locales": {
+        "en-GB": {
+          "summary": "Add songs to your Spotify playlist",
+          "examplePhrases": [
+            "Alexa open spotify helper"
+          ],
+          "keywords": [
+            "Add",
+            "your",
+            "favorite",
+            "songs",
+            "artists",
+            "to",
+            "your",
+            "Spotify",
+            "playlists"
+          ],
+          "name": "Spotify Helper",
+          "description": "This app will enable you to add and remove songs from your Spotify playlist whilst listening",
+          "smallIconUri": "file://assets/images/en-GB_smallIconUri.png",
+          "largeIconUri": "file://assets/images/en-GB_largeIconUri.png"
+        }
+      },
+      "automaticDistribution": {
+        "sourceLocaleForLanguages": [
+          {
+            "sourceLocale": "en-GB",
+            "language": "en"
+          }
+        ],
+        "isActive": true
+      },
+      "isAvailableWorldwide": true,
+      "testingInstructions": "No testing instructions required",
+      "category": "MUSIC_AND_AUDIO_ACCESSORIES",
+      "distributionCountries": []
+    },
+    "apis": {
+      "custom": {
+        "endpoint": {
+          "uri": "arn:aws:lambda:us-east-1:167489420239:function:7e8d3ee9-60e8-4c84-b30b-4ea8740acefa:Release_0"
+        },
+        "interfaces": []
+      }
+    },
+    "manifestVersion": "1.0",
+    "privacyAndCompliance": {
+      "allowsPurchases": false,
+      "locales": {
+        "en-GB": {
+          "privacyPolicyUrl": "https://www.spotify.com/uk/legal/privacy-policy/"
+        }
+      },
+      "containsAds": false,
+      "isExportCompliant": true,
+      "isChildDirected": false,
+      "usesPersonalInfo": false
+    }
+  }
+}
