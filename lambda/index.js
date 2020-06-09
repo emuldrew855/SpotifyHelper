@@ -2,9 +2,9 @@
 // Please visit https://alexa.design/cookbook for additional examples on implementing slots, dialog management,
 // session persistence, api calls, and more.
 const Alexa = require('ask-sdk-core');
-const invocationName = "spotify helper";
+const invocationName = "playlist helper";
 var https = require('https'); 
-var accessToken = 'Bearer BQDL-Oq3cP-qyzxyx-_HZOBC8Zvu5ljPN_xUyBMDC5sZsVEWkupM6Cc-0_s94NxforoWk76PVBnZvIjCQRgyix8xDiln_VM8P132Fo4aYD0n2eTxQ1v7EyCBE12rZJjZq3ncM8QuTCcHtKnZ_LVGAkuwTANy2q-g5uVA0UyMT1vjn0pn04JTZygTXgPSNIQc0fbzvJaja2GTYTdWJHEQ4w';
+var accessToken = 'Bearer BQBpGSRRy_QJv2XQU7bv3E6GY91jZ0lGyc8HucCemTzQSojd8ZDWNAolhMBZyxKMHbjNJ0qCgyRe-wS2_SPF7LgDJQAV0S6EsIctWnTs_Sn9Bpc6ryvWdziQP4_yPTGxjMdrm7dgI4YC5xdLE8dRy3ZWL1RXeaNQLGAPZAYGYG9k92zXHSeFRhD99sgf9xQjpaazDVr3W3p_kqTsE-yLjw';
 var authorizationToken = 'Bearer ';
 var validPlaylist= 'notValid';
 var songAdded = '';
@@ -26,7 +26,7 @@ const LaunchRequestHandler = {
     handle(handlerInput) {
         accessToken = 'Bearer ' + handlerInput.requestEnvelope.context.System.user.accessToken;
         console.log('Auth Token: ', accessToken);
-        const speakOutput = 'hello' + ' and welcome to ' + invocationName + ' ! You can add songs to your playlist.';
+        const speakOutput = 'hello' + ' and welcome to ' + invocationName + ' ! You can add songs you are listening to your Spotify playlist.';
         const path= '/v1/me/playlists'
         httpGet('', path, (theResult) => {
                 var obj = JSON.parse(theResult);
@@ -94,16 +94,23 @@ const RemoveSongIntent_Handler ={
         const responseBuilder = handlerInput.responseBuilder;
         let sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
         let query = trackURI; 
+        let removeSongResponse = 'No previous song has been added. Therefore we were unable to remove from your given playlist';
         console.log('Playlist Info: PlaylistID: ', playlistId, ' Playlist Name: ', playlistName);
         console.log('Song Info: Song Name:' , songAdded, ' Song URI: ', trackURI);
         var path = '/v1/playlists/' + playlistId +'/tracks'; 
+        if(songAdded == '') {
+            console.log('No song available to remove ')
+            
+        }else {
+            removeSongResponse = 'Removing ' + songAdded + ' from ' + playlistName; 
+            songAdded = '';
+        }
         httpDELETE(query, path,  (theResult) => {
                     var obj = JSON.parse(theResult);
-        })
-        let say = 'Removing ' + songAdded + ' from ' + playlistName;
+        }) 
         return responseBuilder
-            .speak(say)
-            .reprompt(say)
+            .speak(removeSongResponse)
+            .reprompt(removeSongResponse)
             .getResponse();
     },   
 };
@@ -136,10 +143,16 @@ const AddSongIntent_Handler =  {
         // If valid play list then make request to get current song
         if(validPlaylist != 'notValid') {
             httpGet('', path,  (theResult) => {
-                    var obj = JSON.parse(theResult);
-                    songAdded = obj.item.name + ' by ' +  obj.item.artists[0].name;
-                    trackURI = obj.item.uri; 
-                    console.log('Song: ', songAdded, ' TrackUI: ' , trackURI);
+                    console.log('Get Song Response: '+ theResult);
+                    if(theResult == '') {
+                        console.log('No song currently being played');
+                        songAdded = '';
+                    }else {
+                        var obj = JSON.parse(theResult);
+                        songAdded = obj.item.name + ' by ' +  obj.item.artists[0].name;
+                        trackURI = obj.item.uri; 
+                        console.log('Song: ', songAdded, ' TrackUI: ' , trackURI);
+                    }
             })
         }else {
             addSongOutput = 'Not a valid playlist please try again';
@@ -173,6 +186,9 @@ const WhatPlaylistIntent_Handler =  {
             whatPlaylistOutput = 'You just added ' + songAdded + ' to your playlist ' + playlistName; 
         }else {
             whatPlaylistOutput = 'You playlist does not exist, please try adding to a valid playlist';
+        }
+        if(songAdded == '') {
+            whatPlaylistOutput = 'No song selected. You need to be playing a song on Spotify to add a song to your playlist. Please try the Add song command again'
         }
         
 
@@ -212,7 +228,7 @@ const ErrorHandler = {
     },
     handle(handlerInput, error) {
         console.log(`~~~~ Error handled: ${error.stack}`);
-        const speakOutput = `Sorry, I had trouble doing what you asked. Please try again.`;
+        const speakOutput = `Sorry, I had trouble doing what you asked. Please try again. Ensure you are playing a song on Spotify to add to your playlist`;
 
         return handlerInput.responseBuilder
             .speak(speakOutput)
