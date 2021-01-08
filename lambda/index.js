@@ -1,61 +1,207 @@
-// This sample demonstrates handling intents from an Alexa skill using the Alexa Skills Kit SDK (v2).
-// Please visit https://alexa.design/cookbook for additional examples on implementing slots, dialog management,
-// session persistence, api calls, and more.
+// Global variables
 const Alexa = require('ask-sdk-core');
-const invocationName = "playlist helper";
-var https = require('https'); 
-var accessToken = 'Bearer BQBpGSRRy_QJv2XQU7bv3E6GY91jZ0lGyc8HucCemTzQSojd8ZDWNAolhMBZyxKMHbjNJ0qCgyRe-wS2_SPF7LgDJQAV0S6EsIctWnTs_Sn9Bpc6ryvWdziQP4_yPTGxjMdrm7dgI4YC5xdLE8dRy3ZWL1RXeaNQLGAPZAYGYG9k92zXHSeFRhD99sgf9xQjpaazDVr3W3p_kqTsE-yLjw';
-var authorizationToken = 'Bearer ';
-var validPlaylist= 'notValid';
-var songAdded = '';
-var trackURI;
+const requests = require('./requests.js');
+const util = require('./util.js');
+var accessToken = 'Bearer BQAOUOgDG4Rq5lGK3BOaeF0wZO9N6q4fC-ZL-zXmWb7C1wwJ4vbnjfM_d77c9_tTq7LsgFKno7FtzlZ89G8CNMtdKK2QskemtcGhct_9bHsYbWMBdFQl68l34IEQlkk8atI4n8hX4UbfZ7RuLAAAJotuFBUZyej3KaX-1HPYzHlpurhRcN2hWHvPXcHoKeXjkSSGP1BNUd3WRFDHixsKeQ';
+var validPlaylist = 'notValid';
 var playlistName = '';
-var playlistId= '';
-var playlists = new Map();
-// Session Attributes 
-//   Alexa will track attributes for you, by default only during the lifespan of your session.
-//   The history[] array will track previous request(s), used for contextual Help/Yes/No handling.
-//   Set up DynamoDB persistence to have the skill save and reload these attributes between skill sessions.
-
+var playlistId = '';
+var addSongOutput = '';
 
 const LaunchRequestHandler = {
     canHandle(handlerInput) {
-        console.log('LAUNCH REQUEST INTENT');
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'LaunchRequest';
     },
-    handle(handlerInput) {
+    async handle(handlerInput) {
+        var introOutput = 'Hello and welcome to Playlist Helper. ';
         accessToken = 'Bearer ' + handlerInput.requestEnvelope.context.System.user.accessToken;
-        console.log('Auth Token: ', accessToken);
-        const speakOutput = 'hello' + ' and welcome to ' + invocationName + ' ! You can add songs you are listening to your Spotify playlist.';
-        const path= '/v1/me/playlists'
-        httpGet('', path, (theResult) => {
-                var obj = JSON.parse(theResult);
-                for(var i = 0; i < obj.items.length; i++) {
-                    playlists.set(obj.items[i].id ,obj.items[i].name)
+        util.accessToken = accessToken;
+        if (handlerInput.requestEnvelope.context.System.user.accessToken == undefined) {
+            introOutput = "You must link your Spotify account with this app. Please use the Alexa app to link your Spotify account.";
+            return handlerInput.responseBuilder
+                .speak(introOutput)
+                .withLinkAccountCard()
+                .reprompt(introOutput)
+                .getResponse();
+        } else {
+            console.log('Auth Token: ', accessToken);
+            await requests.httpGETPlaylistAsync(util.getPlaylistsPath).then((playlistResponse) => {
+                console.log("Playlist Response: ", playlistResponse);
+                if (playlistResponse === undefined || playlistResponse.length == 0) {
+                    console.log('No playlists found');
+                    introOutput += 'You have no created playlists on your Spotify account to add to. Please add a playlist before using this voice skill';
+                } else {
+                    introOutput += 'You can add songs you are listening to your Spotify playlist. Say Add song to.... then your playlist name';
+                    requests.playlists.forEach(function (value, key) {
+                        console.log(key + ' = ' + value)
+                    })
                 }
-                playlists.forEach(function(value, key) {
-                  console.log(key + ' = ' + value)
-                })
-          })
-        
-        return handlerInput.responseBuilder
-            .speak(speakOutput)
-            .reprompt(authorizationToken)
-            .getResponse();
+            }).catch(e => console.log(e));;
+            console.log("Intro Output: ", introOutput);
+            return handlerInput.responseBuilder
+                .speak(introOutput)
+                .reprompt(introOutput)
+                .getResponse();
+        }
     }
 };
 
+// Custom Intents
+const RemoveSongIntent_Handler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+        return request.type === 'IntentRequest' && request.intent.name === 'RemoveSongIntent';
+    },
+    handle(handlerInput) {
+        const responseBuilder = handlerInput.responseBuilder;
+        let removeSongResponse = 'No previous song has been added. Therefore we were unable to remove from your given playlist';
+        console.log('Playlist Info: PlaylistID: ', playlistId, ' Playlist Name: ', playlistName);
+        console.log('Song Info: Song Name:', requests.currentSong, ' Song URI: ', requests.trackURI);
+        var removeSongPath = '/v1/playlists/' + playlistId + '/tracks';
+        if (requests.currentSong == '') {
+            console.log('No song available to remove')
+        } else {
+            removeSongResponse = 'Removing ' + requests.currentSong + ' from ' + playlistName;
+            requests.currentSong = 'No song playing';
+        }
+        requests.httpDELETE(removeSongPath, (theResult) => {
+        })
+        return responseBuilder
+            .speak(removeSongResponse)
+            .reprompt(removeSongResponse)
+            .getResponse();
+    },
+};
+
+const AddSongIntent_Handler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+        return request.type === 'IntentRequest' && request.intent.name === 'AddSongIntent';
+    },
+    async handle(handlerInput) {
+        const responseBuilder = handlerInput.responseBuilder;
+        playlistName = handlerInput.requestEnvelope.request.intent.slots.playlistname.value;
+        if(playlistName.toLocaleLowerCase().includes('playlist')) {
+            playlistName = playlistName.toLocaleLowerCase().replace('playlist ',''); 
+            console.log('Playlist: ' + playlistName);
+        }else if(playlistName.toLocaleLowerCase().includes('add song to')) {
+            playlistName = playlistName.toLocaleLowerCase().replace('add song to ','');
+            console.log('Playlist: ' + playlistName);
+        }
+        console.log('Choosen Playlist Name: ' + playlistName)
+        addSongOutput = 'You must add a song first';
+        var addSongAPLA = require('./APLA/addSong.json');
+        validPlaylist = 'notValid';
+        // Check for valid playlist name
+        accessToken = 'Bearer ' + handlerInput.requestEnvelope.context.System.user.accessToken;
+        util.accessToken = accessToken;
+        await requests.httpGETPlaylistAsync(util.getPlaylistsPath).then((playlistResponse) => {
+            console.log("Playlist Response: ", playlistResponse);
+            if (playlistResponse === undefined || playlistResponse.length == 0) {
+                console.log('No playlists found');
+                addSongOutput = 'You have no created playlists on your Spotify account to add to. Please add a playlist before using this voice skill';
+            } else {
+                requests.playlists.forEach(function (value, key) {
+                    if (value.toLocaleLowerCase().includes(playlistName.toLocaleLowerCase())) {
+                        console.log('Valid playlistName', value);
+                        playlistName = value;
+                        playlistId = key;
+                        validPlaylist = 'valid';
+                    } else {
+                        addSongOutput = 'Not a valid playlist please try again';
+                        console.log('Invalid Playlist name', value);
+                    }
+                })
+            }
+        }).catch(e => console.log(e));;
+        // If valid play list then make request to get current song
+        await requests.httpGETSongPostSongAsync(util.getCurrentSongPath, playlistId).then((postSongResponse) => {
+            console.log("postSongResponse", postSongResponse);
+            if (requests.currentSong == 'No song playing') {
+                addSongOutput = 'You must be playing a song to add to your playlist';
+            } else if (validPlaylist == 'valid' && requests.currentSong != "No song playing") {
+                addSongOutput = 'Adding ' + requests.currentSong + ' song to ' + playlistName;
+            }
+        }).catch(e => console.log(e));
+        console.log("Add Song Decision: " + addSongOutput);
+        return responseBuilder
+            .speak(addSongOutput)
+            .addDirective({
+                "type": "Alexa.Presentation.APLA.RenderDocument",
+                "token": "developer-provided-string",
+                "document": addSongAPLA,
+                "datasources": {
+                    "data": {
+                        "addSongOutput": addSongOutput
+                    }
+                }
+            })
+            .reprompt(addSongOutput)
+            .getResponse();
+    },
+};
+
+const WhatPlaylistIntent_Handler = {
+    canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+        return request.type === 'IntentRequest' && request.intent.name === 'WhatPlaylistIntent';
+    },
+    handle(handlerInput) {
+        const responseBuilder = handlerInput.responseBuilder;
+        let whatPlaylistOutput = '';
+        if (requests.postSuccess != '') {
+            whatPlaylistOutput = 'You just added ' + requests.currentSong + ' to your playlist ' + playlistName;
+        } else {
+            whatPlaylistOutput = 'You playlist does not exist, please try adding to a valid playlist';
+        }
+        if (requests.currentSong == 'No song playing') {
+            whatPlaylistOutput = 'No song has been added. You need to be playing a song on Spotify to add a song to your playlist. Please try the Add song command again'
+        }
+        console.log("What playlist output: ", whatPlaylistOutput)
+        return responseBuilder
+            .speak(whatPlaylistOutput)
+            .getResponse();
+    },
+};
+
+const CreatePlaylistIntent_Handler = {
+       canHandle(handlerInput) {
+        const request = handlerInput.requestEnvelope.request;
+        return request.type === 'IntentRequest' && request.intent.name === 'CreatePlaylistIntent';
+    },
+     handle(handlerInput) {
+       const responseBuilder = handlerInput.responseBuilder;
+       let newPlaylistName = handlerInput.requestEnvelope.request.intent.slots.createdPlaylistName.value;
+       let createPlaylistOutput = 'Created new playlist: ' + newPlaylistName; 
+       let path = util.getCurrentUserProfilePath;
+       requests.httpGETUserProfile(path);
+       console.log("Create playlist output: ", createPlaylistOutput);
+      
+       return responseBuilder
+            .speak(createPlaylistOutput)
+            .reprompt(createPlaylistOutput)
+            .getResponse(); 
+    },
+    
+}
+
+// Built in intents
 const HelpIntentHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest'
             && Alexa.getIntentName(handlerInput.requestEnvelope) === 'AMAZON.HelpIntent';
     },
     handle(handlerInput) {
-        const speakOutput = 'You can say hello to me! How can I help?';
+        var helpAPLAReference = require('./APLA/help.json');
 
         return handlerInput.responseBuilder
-            .speak(speakOutput)
-            .reprompt(speakOutput)
+            .speak()
+            .addDirective({
+                "type": "Alexa.Presentation.APLA.RenderDocument",
+                "token": "developer-provided-string",
+                "document": helpAPLAReference
+            })
+            .reprompt()
             .getResponse();
     }
 };
@@ -82,128 +228,6 @@ const SessionEndedRequestHandler = {
     }
 };
 
-
-const RemoveSongIntent_Handler ={ 
-     canHandle(handlerInput) {
-        const request = handlerInput.requestEnvelope.request;
-        console.log('REMOVE SONG INTENT');
-        return request.type === 'IntentRequest' && request.intent.name === 'RemoveSongIntent' ;
-    },
-    handle(handlerInput) {
-        const request = handlerInput.requestEnvelope.request;
-        const responseBuilder = handlerInput.responseBuilder;
-        let sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        let query = trackURI; 
-        let removeSongResponse = 'No previous song has been added. Therefore we were unable to remove from your given playlist';
-        console.log('Playlist Info: PlaylistID: ', playlistId, ' Playlist Name: ', playlistName);
-        console.log('Song Info: Song Name:' , songAdded, ' Song URI: ', trackURI);
-        var path = '/v1/playlists/' + playlistId +'/tracks'; 
-        if(songAdded == '') {
-            console.log('No song available to remove ')
-            
-        }else {
-            removeSongResponse = 'Removing ' + songAdded + ' from ' + playlistName; 
-            songAdded = '';
-        }
-        httpDELETE(query, path,  (theResult) => {
-                    var obj = JSON.parse(theResult);
-        }) 
-        return responseBuilder
-            .speak(removeSongResponse)
-            .reprompt(removeSongResponse)
-            .getResponse();
-    },   
-};
-
-const AddSongIntent_Handler =  {
-    canHandle(handlerInput) {
-        const request = handlerInput.requestEnvelope.request;
-        console.log('ADD SONG INTENT');
-        return request.type === 'IntentRequest' && request.intent.name === 'AddSongIntent' ;
-    },
-    handle(handlerInput) {
-        const request = handlerInput.requestEnvelope.request;
-        const responseBuilder = handlerInput.responseBuilder;
-        let sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        const path = '/v1/me/player/currently-playing';
-        playlistName = handlerInput.requestEnvelope.request.intent.slots.playlistname.value; 
-        var addSongOutput = 'Adding to '
-        // Check for valid playlist name
-        playlists.forEach(function(value, key) {
-        if(value.toLocaleLowerCase().includes(playlistName.toLocaleLowerCase())) {
-                  console.log('Valid playlistName', value);
-                  playlistName = value;
-                  playlistId = key;
-                  validPlaylist = 'valid';
-                  addSongOutput += playlistName;
-         }else{
-                  console.log('Invalid Playlist name', value);
-          }
-        })
-        // If valid play list then make request to get current song
-        if(validPlaylist != 'notValid') {
-            httpGet('', path,  (theResult) => {
-                    console.log('Get Song Response: '+ theResult);
-                    if(theResult == '') {
-                        console.log('No song currently being played');
-                        songAdded = '';
-                    }else {
-                        var obj = JSON.parse(theResult);
-                        songAdded = obj.item.name + ' by ' +  obj.item.artists[0].name;
-                        trackURI = obj.item.uri; 
-                        console.log('Song: ', songAdded, ' TrackUI: ' , trackURI);
-                    }
-            })
-        }else {
-            addSongOutput = 'Not a valid playlist please try again';
-        }
-        return responseBuilder
-            .speak(addSongOutput)
-            .reprompt('try again, ' + addSongOutput)
-            .getResponse();
-    },
-};
-
-const WhatPlaylistIntent_Handler =  {
-    canHandle(handlerInput) {
-        const request = handlerInput.requestEnvelope.request;
-        console.log('WHAT PLAYLIST INTENT');
-        return request.type === 'IntentRequest' && request.intent.name === 'WhatPlaylistIntent' ;
-    },
-    handle(handlerInput) {
-        const request = handlerInput.requestEnvelope.request;
-        const responseBuilder = handlerInput.responseBuilder;
-        let sessionAttributes = handlerInput.attributesManager.getSessionAttributes();
-        let whatPlaylistOutput = '';
-        if(validPlaylist != 'notValid') {
-            console.log('PlaylistID: ', playlistId);
-            console.log('Track URI: ' , trackURI);
-            var path=	'/v1/playlists/' + playlistId + '/tracks?uris=' + trackURI;
-            httpPOST('', path,  (theResult) => {
-                    var obj = JSON.parse(theResult);
-                    console.log("Object: ", obj);
-            })
-            whatPlaylistOutput = 'You just added ' + songAdded + ' to your playlist ' + playlistName; 
-        }else {
-            whatPlaylistOutput = 'You playlist does not exist, please try adding to a valid playlist';
-        }
-        if(songAdded == '') {
-            whatPlaylistOutput = 'No song selected. You need to be playing a song on Spotify to add a song to your playlist. Please try the Add song command again'
-        }
-        
-
-        return responseBuilder
-            .speak(whatPlaylistOutput)
-            .reprompt('try again, ' + whatPlaylistOutput)
-            .getResponse();
-    },
-};
-
-
-// The intent reflector is used for interaction model testing and debugging.
-// It will simply repeat the intent the user said. You can create custom handlers
-// for your intents by defining them above, then also adding them to the request
-// handler chain below.
 const IntentReflectorHandler = {
     canHandle(handlerInput) {
         return Alexa.getRequestType(handlerInput.requestEnvelope) === 'IntentRequest';
@@ -219,9 +243,6 @@ const IntentReflectorHandler = {
     }
 };
 
-// Generic error handling to capture any syntax or routing errors. If you receive an error
-// stating the request handler chain is not found, you have not implemented a handler for
-// the intent being invoked or included it in the skill builder below.
 const ErrorHandler = {
     canHandle() {
         return true;
@@ -237,13 +258,11 @@ const ErrorHandler = {
     }
 };
 
-// The SkillBuilder acts as the entry point for your skill, routing all request and response
-// payloads to the handlers above. Make sure any new handlers or interceptors you've
-// defined are included below. The order matters - they're processed top to bottom.
 exports.handler = Alexa.SkillBuilders.custom()
     .addRequestHandlers(
         LaunchRequestHandler,
         WhatPlaylistIntent_Handler,
+        CreatePlaylistIntent_Handler,
         AddSongIntent_Handler,
         RemoveSongIntent_Handler,
         HelpIntentHandler,
@@ -255,110 +274,3 @@ exports.handler = Alexa.SkillBuilders.custom()
         ErrorHandler,
     )
     .lambda();
-    
-    
-// 3.  Helper Functions ===================================================================
-
-function httpGet(query,path, callback) {
-  var options = {
-  'method': 'GET',
-  'hostname': 'api.spotify.com',
-  'path': path,
-  'headers': {
-      'Authorization': accessToken
-  },
-  'maxRedirects': 20
-};
-
-    var req = https.request(options, res => {
-        console.log("GET REQUEST STARTED");
-        var responseString = "";
-        
-        //accept incoming data asynchronously
-        res.on('data', chunk => {
-            responseString = responseString + chunk;
-        });
-        
-        //return the data when streaming is complete
-        res.on('end', () => {;
-            callback(responseString);
-        });
-
-    }).on("error", (err) => {
-        console.log("Error: " + err.message);
-    });;
-    req.end();
-}
-
-function httpPOST(query,path, callback) {
-  var options = {
-  'method': 'POST',
-  'hostname': 'api.spotify.com',
-  'path': path,
-  'headers': {
-    'Authorization': accessToken
-  },
-  'maxRedirects': 20
-};
-
-    var req = https.request(options, res => {
-        console.log("POST REQUEST STARTED");
-        var responseString = "";
-        
-        //accept incoming data asynchronously
-        res.on('data', chunk => {
-            responseString = responseString + chunk;
-        });
-        
-        //return the data when streaming is complete
-        res.on('end', () => {;
-            callback(responseString);
-        });
-
-    }).on("error", (err) => {
-        console.log("Error: " + err.message);
-    });;
-    req.end();
-}
-
-
-function httpDELETE(query,path, callback) {
-  var options = {
-  'method': 'DELETE',
-  'hostname': 'api.spotify.com',
-  'path': path,
-  'Content': 'application/json',
-  'Content-Type': 'application/json',
-  'headers': {
-    'Authorization': accessToken
-  },
-  'maxRedirects': 20
-};
-
-    var req = https.request(options, res => {
-        console.log("DELETE REQUEST STARTED");
-        var responseString = "";
-        
-        //accept incoming data asynchronously
-        res.on('data', chunk => {
-            responseString = responseString + chunk;
-        });
-        
-        //return the data when streaming is complete
-        res.on('end', () => {;
-            callback(responseString);
-        });
-
-    }).on("error", (err) => {
-        console.log("Error: " + err.message);
-    });;
-    
-    var postData = JSON.stringify({"tracks":[{"uri":query}]});
-
-    req.setHeader('Content-Length', postData.length);
-    
-    req.write(postData);
-
-    
-    req.end();
-}
