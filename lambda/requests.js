@@ -1,16 +1,14 @@
 // variables
 const axios = require("axios");
-var https = require("https");
-var host = "api.spotify.com";
+let https = require("https");
+let host = "api.spotify.com";
 const util = require("./util.js");
-let postSongPath = "";
-var playlists = new Map();
-var trackURI = "";
-var currentSong = "No song playing";
-var postSuccess = "";
-var userId = "";
-exports.currentSong = currentSong;
-exports.postSuccess = postSuccess;
+let trackURI = "",
+  currentSong = "No song playing",
+  postSuccess = "",
+  postSongPath = "",
+  userId = "",
+  playlists = new Map();
 // methods
 module.exports.httpGETPlaylistAsync = async function httpGETPlaylistAsync(
   path
@@ -102,7 +100,7 @@ module.exports.httpGETSongPostSongAsync =
   };
 
 module.exports.httpPostSongAsync = function httpPostSongAsync(path) {
-  var options = {
+  const options = {
     method: "POST",
     hostname: host,
     path: path,
@@ -143,11 +141,11 @@ module.exports.httpPostSongAsync = function httpPostSongAsync(path) {
 module.exports.httpPOSTPlaylist = function httpPOSTPlaylist(
   path,
   newPlaylistName,
-  callback
+  _callback
 ) {
-  var data = JSON.stringify({ name: newPlaylistName });
+  const data = JSON.stringify({ name: newPlaylistName });
   console.log("DATA stringify: ", data);
-  var config = {
+  const config = {
     method: "post",
     url: path,
     headers: {
@@ -167,7 +165,7 @@ module.exports.httpPOSTPlaylist = function httpPOSTPlaylist(
 };
 
 module.exports.httpPOST = async function httpPOST(path, callback) {
-  var options = {
+  const options = {
     method: "POST",
     hostname: host,
     path: path,
@@ -177,10 +175,10 @@ module.exports.httpPOST = async function httpPOST(path, callback) {
     maxRedirects: 20,
   };
 
-  var req = https
+  const req = https
     .request(options, (res) => {
       console.log("POST REQUEST STARTED");
-      var responseString = "";
+      let responseString = "";
 
       //accept incoming data asynchronously
       res.on("data", (chunk) => {
@@ -199,7 +197,7 @@ module.exports.httpPOST = async function httpPOST(path, callback) {
 };
 
 module.exports.httpDELETE = function httpDELETE(path, callback) {
-  var options = {
+  const options = {
     method: "DELETE",
     hostname: host,
     path: path,
@@ -211,10 +209,10 @@ module.exports.httpDELETE = function httpDELETE(path, callback) {
     maxRedirects: 20,
   };
 
-  var req = https
+  let req = https
     .request(options, (res) => {
       console.log("DELETE REQUEST STARTED");
-      var responseString = "";
+      let responseString = "";
 
       //accept incoming data asynchronously
       res.on("data", (chunk) => {
@@ -230,11 +228,11 @@ module.exports.httpDELETE = function httpDELETE(path, callback) {
       console.log("Error: " + err.message);
     });
 
-  var postData = JSON.stringify({ tracks: [{ uri: trackURI }] });
-
+  const postData = JSON.stringify({ tracks: [{ uri: trackURI }] });
   req.setHeader("Content-Length", postData.length);
-
   req.write(postData);
-
   req.end();
 };
+
+exports.currentSong = currentSong;
+exports.postSuccess = postSuccess;
