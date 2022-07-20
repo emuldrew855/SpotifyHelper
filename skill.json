@@ -2,10 +2,11 @@
   "manifest": {
     "publishingInformation": {
       "locales": {
-        "en-GB": {
-          "summary": "Add songs to your Spotify playlist",
+        "en-US": {
+          "summary": "Add songs you are currently playing to your Spotify playlists using only voice and Alexa",
           "examplePhrases": [
-            "Alexa open spotify helper"
+            "Alexa open playlist helper",
+            "Alexa ask playlist helper to add song to playlist Christmas Songs"
           ],
           "keywords": [
             "Add",
@@ -16,32 +17,176 @@
             "to",
             "your",
             "Spotify",
-            "playlists"
+            "playlists",
+            "remove",
+            "songs",
+            "from",
+            "playlist",
+            "listen",
+            "music",
+            "playlist",
+            "modify",
+            "change",
+            "delete"
           ],
-          "name": "Spotify Helper",
-          "description": "This app will enable you to add and remove songs from your Spotify playlist whilst listening",
+          "name": "Playlist Helper",
+          "description": "So you have a smartphone and an Alexa. That means your phone is paired to Alexa via Bluetooth, so all your music plays through Alexa.\n\nAfter you get home from a long day of work and you listen to some new music. \n\nSo you\u0027re listening to Spotify and an awesome brand new track comes on and  you think “I really want to add this really cool song to your awesome rock and roll playlist on Spotify”.\n\nThat’s exactly why I made Playlist Helper!    \n\nNow, anytime you\u0027re listening to music and you come across a song EVEN from somebody else\u0027s playlist that you likes....  \n\nAll you have to do is say: \n\n\"Alexa, ask Playlist Helper to add song to my rock classics playlist!\"\n\nPlaylist Helper will automatically add the song which is currently playing will be added to the playlist. \n\nPlaylist Helper enables you to easily add or remove songs from your Spotify playlist using only your voice. Currently Playlist Helper only supports Spotify. Stay tuned for more updates.\n*In order to use Playlist Helper enable the 3rd party app and link your Spotify account using the Alexa app\n\nHere are the key phrases and how to use them: \nAdd songs to your playlist by saying “Add song to rock and roll playlist”:  this will add the current song being played by your Spotify account to your rock and roll playlist\nCheck what song has been added by saying “What song did I add?”:You need to ask what song did I add to ensure the song has been added successfully to your playlist\nRemove the song that you just added by saying “Remove song”: Remove song removes the most recent song added to your playlist that Playlist Helper added\nCreate playlists by saying  \"Create new playlist Groovy Tunes”: Creates a new playlist on your Spotify account\n\nIf you have any feedback or feature requests for this voice app, feel free to contact @EdwardMuldrew on Twitter or edwardmuldrew@gmail.com on email.",
+          "smallIconUri": "file://assets/images/en-US_smallIconUri.png",
+          "updatesDescription": "Added better product facing information \u0026 ending sessions as appropriate",
+          "largeIconUri": "file://assets/images/en-US_largeIconUri.png"
+        },
+        "en-CA": {
+          "summary": "Add songs you are currently playing to your Spotify playlists using only voice and Alexa",
+          "examplePhrases": [
+            "Alexa open playlist helper",
+            "Alexa ask playlist helper to add song to playlist Christmas Songs"
+          ],
+          "keywords": [
+            "Add",
+            "your",
+            "favorite",
+            "songs",
+            "artists",
+            "to",
+            "your",
+            "Spotify",
+            "playlists",
+            "remove",
+            "songs",
+            "from",
+            "playlist",
+            "listen",
+            "music",
+            "playlist",
+            "modify",
+            "change",
+            "delete"
+          ],
+          "name": "Playlist Helper",
+          "description": "So you have a smartphone and an Alexa. That means your phone is paired to Alexa via Bluetooth, so all your music plays through Alexa.\n\nAfter you get home from a long day of work and you listen to some new music. \n\nSo you\u0027re listening to Spotify and an awesome brand new track comes on and  you think “I really want to add this really cool song to your awesome rock and roll playlist on Spotify”.\n\nThat’s exactly why I made Playlist Helper!    \n\nNow, anytime you\u0027re listening to music and you come across a song EVEN from somebody else\u0027s playlist that you likes....  \n\nAll you have to do is say: \n\n\"Alexa, ask Playlist Helper to add song to my rock classics playlist!\"\n\nPlaylist Helper will automatically add the song which is currently playing will be added to the playlist. \n\nPlaylist Helper enables you to easily add or remove songs from your Spotify playlist using only your voice. Currently Playlist Helper only supports Spotify. Stay tuned for more updates.\n*In order to use Playlist Helper enable the 3rd party app and link your Spotify account using the Alexa app\n\nHere are the key phrases and how to use them: \nAdd songs to your playlist by saying “Add song to rock and roll playlist”:  this will add the current song being played by your Spotify account to your rock and roll playlist\nCheck what song has been added by saying “What song did I add?”:You need to ask what song did I add to ensure the song has been added successfully to your playlist\nRemove the song that you just added by saying “Remove song”: Remove song removes the most recent song added to your playlist that Playlist Helper added\nCreate playlists by saying  \"Create new playlist Groovy Tunes”: Creates a new playlist on your Spotify account\n\nIf you have any feedback or feature requests for this voice app, feel free to contact @EdwardMuldrew on Twitter or edwardmuldrew@gmail.com on email.",
+          "smallIconUri": "file://assets/images/en-CA_smallIconUri.png",
+          "updatesDescription": "Added better product facing information \u0026 ending sessions as appropriate",
+          "largeIconUri": "file://assets/images/en-CA_largeIconUri.png"
+        },
+        "en-IN": {
+          "summary": "Add songs you are currently playing to your Spotify playlists using only voice and Alexa",
+          "examplePhrases": [
+            "Alexa open playlist helper",
+            "Alexa ask playlist helper to add song to playlist Christmas Songs"
+          ],
+          "keywords": [
+            "Add",
+            "your",
+            "favorite",
+            "songs",
+            "artists",
+            "to",
+            "your",
+            "Spotify",
+            "playlists",
+            "remove",
+            "songs",
+            "from",
+            "playlist",
+            "listen",
+            "music",
+            "playlist",
+            "modify",
+            "change",
+            "delete",
+            "create",
+            "mixer"
+          ],
+          "name": "Playlist Helper",
+          "description": "So you have a smartphone and an Alexa. That means your phone is paired to Alexa via Bluetooth, so all your music plays through Alexa.\n\nAfter you get home from a long day of work and you listen to some new music. \n\nSo you\u0027re listening to Spotify and an awesome brand new track comes on and  you think “I really want to add this really cool song to your awesome rock and roll playlist on Spotify”.\n\nThat’s exactly why I made Playlist Helper!    \n\nNow, anytime you\u0027re listening to music and you come across a song EVEN from somebody else\u0027s playlist that you likes....  \n\nAll you have to do is say: \n\n\"Alexa, ask Playlist Helper to add song to my rock classics playlist!\"\n\nPlaylist Helper will automatically add the song which is currently playing will be added to the playlist. \n\nPlaylist Helper enables you to easily add or remove songs from your Spotify playlist using only your voice. Currently Playlist Helper only supports Spotify. Stay tuned for more updates.\n*In order to use Playlist Helper enable the 3rd party app and link your Spotify account using the Alexa app\n\nHere are the key phrases and how to use them: \nAdd songs to your playlist by saying “Add song to rock and roll playlist”:  this will add the current song being played by your Spotify account to your rock and roll playlist\nCheck what song has been added by saying “What song did I add?”:You need to ask what song did I add to ensure the song has been added successfully to your playlist\nRemove the song that you just added by saying “Remove song”: Remove song removes the most recent song added to your playlist that Playlist Helper added\nCreate playlists by saying  \"Create new playlist Groovy Tunes”: Creates a new playlist on your Spotify account\n\nIf you have any feedback or feature requests for this voice app, feel free to contact @EdwardMuldrew on Twitter or edwardmuldrew@gmail.com on email",
+          "smallIconUri": "file://assets/images/en-IN_smallIconUri.png",
+          "updatesDescription": "Added better product facing information \u0026 ending sessions as appropriate",
+          "largeIconUri": "file://assets/images/en-IN_largeIconUri.png"
+        },
+        "en-AU": {
+          "summary": "Add songs you are currently playing to your Spotify playlists using only voice and Alexa",
+          "examplePhrases": [
+            "Alexa open playlist helper",
+            "Alexa ask playlist helper to add song to playlist Christmas Songs"
+          ],
+          "keywords": [
+            "Add",
+            "your",
+            "favorite",
+            "songs",
+            "artists",
+            "to",
+            "your",
+            "Spotify",
+            "playlists",
+            "remove",
+            "songs",
+            "from",
+            "playlist",
+            "listen",
+            "music",
+            "playlist",
+            "modify",
+            "change",
+            "delete",
+            "create",
+            "mixer"
+          ],
+          "name": "Playlist Helper",
+          "description": "So you have a smartphone and an Alexa. That means your phone is paired to Alexa via Bluetooth, so all your music plays through Alexa.\n\nAfter you get home from a long day of work and you listen to some new music. \n\nSo you\u0027re listening to Spotify and an awesome brand new track comes on and  you think “I really want to add this really cool song to your awesome rock and roll playlist on Spotify”.\n\nThat’s exactly why I made Playlist Helper!    \n\nNow, anytime you\u0027re listening to music and you come across a song EVEN from somebody else\u0027s playlist that you likes....  \n\nAll you have to do is say: \n\n\"Alexa, ask Playlist Helper to add song to my rock classics playlist!\"\n\nPlaylist Helper will automatically add the song which is currently playing will be added to the playlist. \n\nPlaylist Helper enables you to easily add or remove songs from your Spotify playlist using only your voice. Currently Playlist Helper only supports Spotify. Stay tuned for more updates.\n*In order to use Playlist Helper enable the 3rd party app and link your Spotify account using the Alexa app\n\nHere are the key phrases and how to use them: \nAdd songs to your playlist by saying “Add song to rock and roll playlist”:  this will add the current song being played by your Spotify account to your rock and roll playlist\nCheck what song has been added by saying “What song did I add?”:You need to ask what song did I add to ensure the song has been added successfully to your playlist\nRemove the song that you just added by saying “Remove song”: Remove song removes the most recent song added to your playlist that Playlist Helper added\nCreate playlists by saying  \"Create new playlist Groovy Tunes”: Creates a new playlist on your Spotify account\n\nIf you have any feedback or feature requests for this voice app, feel free to contact @EdwardMuldrew on Twitter or edwardmuldrew@gmail.com on email.",
+          "smallIconUri": "file://assets/images/en-AU_smallIconUri.png",
+          "updatesDescription": "Added better product facing information \u0026 ending sessions as appropriate",
+          "largeIconUri": "file://assets/images/en-AU_largeIconUri.png"
+        },
+        "en-GB": {
+          "summary": "Add songs you are currently playing to your Spotify playlists using only voice and Alexa",
+          "examplePhrases": [
+            "Alexa open playlist helper",
+            "Alexa ask playlist helper to add song to playlist Christmas Songs"
+          ],
+          "keywords": [
+            "Add",
+            "your",
+            "favorite",
+            "songs",
+            "artists",
+            "to",
+            "your",
+            "Spotify",
+            "playlists",
+            "remove",
+            "songs",
+            "from",
+            "playlist",
+            "listen",
+            "music",
+            "playlist",
+            "modify",
+            "change",
+            "delete",
+            "create",
+            "mixer"
+          ],
+          "name": "Playlist Helper",
+          "description": "So you have a smartphone and an Alexa. That means your phone is paired to Alexa via Bluetooth, so all your music plays through Alexa.\n\nAfter you get home from a long day of work and you listen to some new music. \n\nSo you\u0027re listening to Spotify and an awesome brand new track comes on and  you think “I really want to add this really cool song to your awesome rock and roll playlist on Spotify”.\n\nThat’s exactly why I made Playlist Helper!    \n\nNow, anytime you\u0027re listening to music and you come across a song EVEN from somebody else\u0027s playlist that you likes....  \n\nAll you have to do is say: \n\n\"Alexa, ask Playlist Helper to add song to my rock classics playlist!\"\n\nPlaylist Helper will automatically add the song which is currently playing will be added to the playlist. \n\nPlaylist Helper enables you to easily add or remove songs from your Spotify playlist using only your voice. Currently Playlist Helper only supports Spotify. Stay tuned for more updates.\n*In order to use Playlist Helper enable the 3rd party app and link your Spotify account using the Alexa app\n\nHere are the key phrases and how to use them: \nAdd songs to your playlist by saying “Add song to rock and roll playlist”:  this will add the current song being played by your Spotify account to your rock and roll playlist\nCheck what song has been added by saying “What song did I add?”:You need to ask what song did I add to ensure the song has been added successfully to your playlist\nRemove the song that you just added by saying “Remove song”: Remove song removes the most recent song added to your playlist that Playlist Helper added\nCreate playlists by saying  \"Create new playlist Groovy Tunes”: Creates a new playlist on your Spotify account\n\nIf you have any feedback or feature requests for this voice app, feel free to contact @EdwardMuldrew on Twitter or edwardmuldrew@gmail.com on email.",
           "smallIconUri": "file://assets/images/en-GB_smallIconUri.png",
+          "updatesDescription": "Added better product facing information \u0026 ending sessions as appropriate",
           "largeIconUri": "file://assets/images/en-GB_largeIconUri.png"
         }
       },
       "automaticDistribution": {
-        "sourceLocaleForLanguages": [
-          {
-            "sourceLocale": "en-GB",
-            "language": "en"
-          }
-        ],
-        "isActive": true
+        "isActive": false
       },
       "isAvailableWorldwide": true,
-      "testingInstructions": "No testing instructions required",
+      "testingInstructions": "Please link a spotify account to use this app and then test using the given intents. \nI have created a test spotify account for this purpose. Log in using email: edwardmuldrew@gmail.com password: Wellington820\n\nPrivacy policy is owned and enforced by myself under https://github.com/emuldrew855/SpotifyHelper/blob/master/privacy.html. \nGithub repo named by previous skill name of \u0027SpotifyHelper\u0027 which has now been changed to \u0027PlaylistHelper\u0027 but privacy policy still owned, maintained and enforced by developer.",
       "category": "MUSIC_AND_AUDIO_ACCESSORIES",
+      "distributionMode": "PUBLIC",
       "distributionCountries": []
     },
     "apis": {
       "custom": {
         "endpoint": {
-          "uri": "arn:aws:lambda:us-east-1:167489420239:function:7e8d3ee9-60e8-4c84-b30b-4ea8740acefa:Release_0"
+          "uri": "arn:aws:lambda:us-east-1:167489420239:function:7e8d3ee9-60e8-4c84-b30b-4ea8740acefa:Release_8"
         },
         "interfaces": []
       }
@@ -50,8 +195,20 @@
     "privacyAndCompliance": {
       "allowsPurchases": false,
       "locales": {
+        "en-US": {
+          "privacyPolicyUrl": "https://github.com/emuldrew855/SpotifyHelper/blob/master/privacy.html"
+        },
+        "en-CA": {
+          "privacyPolicyUrl": "https://github.com/emuldrew855/SpotifyHelper/blob/master/privacy.html"
+        },
+        "en-IN": {
+          "privacyPolicyUrl": "https://github.com/emuldrew855/SpotifyHelper/blob/master/privacy.html"
+        },
+        "en-AU": {
+          "privacyPolicyUrl": "https://github.com/emuldrew855/SpotifyHelper/blob/master/privacy.html"
+        },
         "en-GB": {
-          "privacyPolicyUrl": "https://www.spotify.com/uk/legal/privacy-policy/"
+          "privacyPolicyUrl": "https://github.com/emuldrew855/SpotifyHelper/blob/master/privacy.html"
         }
       },
       "containsAds": false,

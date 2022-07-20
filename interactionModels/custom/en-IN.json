@@ -1,0 +1,79 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "playlist helper",
+      "intents": [
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AddSongIntent",
+          "slots": [
+            {
+              "name": "playlistname",
+              "type": "AMAZON.MusicGroup"
+            }
+          ],
+          "samples": [
+            "add current song to {playlistname}",
+            "add this song to {playlistname}",
+            "add song to playlist {playlistname}",
+            "add song to {playlistname}",
+            "add this song to the {playlistname}",
+            "add song to my {playlistname}"
+          ]
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "WhatPlaylistIntent",
+          "slots": [],
+          "samples": [
+            "what song did I add to my playlist",
+            "what did I just add",
+            "what song",
+            "What song did I add"
+          ]
+        },
+        {
+          "name": "RemoveSongIntent",
+          "slots": [],
+          "samples": [
+            "to remove song",
+            "remove song",
+            "remove that song",
+            "remove song from playlist"
+          ]
+        },
+        {
+          "name": "CreatePlaylistIntent",
+          "slots": [
+            {
+              "name": "createdPlaylistName",
+              "type": "AMAZON.MusicGroup"
+            }
+          ],
+          "samples": [
+            "create playlist named {createdPlaylistName}",
+            "create new playlist {createdPlaylistName}",
+            "create a new playlist called {createdPlaylistName}",
+            "create playlist {createdPlaylistName}"
+          ]
+        }
+      ],
+      "types": []
+    }
+  },
+  "version": "1"
+}

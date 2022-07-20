@@ -1,0 +1,39 @@
+{
+    "type": "APLA",
+    "version": "0.8",
+    "description": "This document demonstrates key components used to create audio responses.",
+    "mainTemplate": {
+        "parameters": [
+            "payload"
+        ],
+        "item": {
+            "type": "Mixer",
+            "description": "The Mixer component plays a set of audio clips at the same time. See docs for more information.",
+            "items": [
+                {
+                    "type": "Sequencer",
+                    "description": "The Sequencer component plays a series of audio clips one after another.",
+                    "items": [
+                        {
+                            "type": "Speech",
+                            "content": "'To use Playlist Helper. First you must be playing a song using Spotify. <break time=\"0.5s\"/>."
+                        }, 
+                        {
+                            "type": "Speech",
+                            "content": "Add songs by saying add song to and then the name of a valid created playlist from your account <break time=\"0.5s\"/>."
+                        },
+                        {
+                            "type": "Speech",
+                            "content": "'Confirm you have added a song by saying What song did I add? <break time=\"0.5s\"/>."
+                        },
+                        {
+                            "type": "Speech",
+                            "content": "Finally you can remove previously added songs by saying remove song <break time=\"0.5s\"/>."
+                        }
+                    ]
+                }
+            ]
+        }
+    }
+}
+  

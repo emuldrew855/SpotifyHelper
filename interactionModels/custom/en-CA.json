@@ -1,0 +1,57 @@
+{
+  "interactionModel": {
+    "languageModel": {
+      "invocationName": "playlist helper",
+      "intents": [
+        {
+          "name": "AMAZON.CancelIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.HelpIntent",
+          "samples": []
+        },
+        {
+          "name": "AMAZON.StopIntent",
+          "samples": []
+        },
+        {
+          "name": "AddSongIntent",
+          "slots": [
+            {
+              "name": "playlistname",
+              "type": "AMAZON.MusicGroup"
+            }
+          ],
+          "samples": [
+            "add song to {playlistname}",
+            "add this song to the {playlistname}",
+            "add song to my {playlistname}"
+          ]
+        },
+        {
+          "name": "AMAZON.NavigateHomeIntent",
+          "samples": []
+        },
+        {
+          "name": "WhatPlaylistIntent",
+          "slots": [],
+          "samples": [
+            "What song did I add"
+          ]
+        },
+        {
+          "name": "RemoveSongIntent",
+          "slots": [],
+          "samples": [
+            "remove song",
+            "remove that song",
+            "remove song from playlist"
+          ]
+        }
+      ],
+      "types": []
+    }
+  },
+  "version": "4"
+}
