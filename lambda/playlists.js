@@ -35,7 +35,7 @@ module.exports.cleanFoundPlaylists = function cleanFoundPlaylists() {
     let m;
     while ((m = emojiRegex.exec(value)) !== null) {
       // This is necessary to avoid infinite loops with zero-width matches
-      if (m.index === regex.lastIndex) {
+      if (m.index === emojiRegex.lastIndex) {
         emojiRegex.lastIndex++;
       }
 
@@ -55,7 +55,7 @@ module.exports.isValidPlaylist = function isValidPlaylist(playlistName) {
   let validPlaylist = false;
   let playlistMatch = FuzzySet([playlistName]);
   cleanedPlaylists.forEach(function (value, key) {
-    if (playlistMatch.get(value) == null) {
+    if (playlistMatch.get(value) === null) {
       console.log("Invalid playlist: ", value);
     } else if (playlistMatch.get(value)[0][0] > 0.6) {
       console.log(playlistMatch.get(value));

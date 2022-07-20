@@ -1,13 +1,16 @@
 // Global variables
-const Alexa = require("ask-sdk-core");
-const requests = require("./requests.js");
-const util = require("./util.js");
+const Alexa = require("ask-sdk-core"),
+  requests = require("./requests.js"),
+  util = require("./util.js"),
+  speech = require("./speech.js"),
+  addSongAPLA = require("./APLA/addSong.json"),
+  helpAPLAReference = require("./APLA/help.json");
 let accessToken =
-  "Bearer BQAOUOgDG4Rq5lGK3BOaeF0wZO9N6q4fC-ZL-zXmWb7C1wwJ4vbnjfM_d77c9_tTq7LsgFKno7FtzlZ89G8CNMtdKK2QskemtcGhct_9bHsYbWMBdFQl68l34IEQlkk8atI4n8hX4UbfZ7RuLAAAJotuFBUZyej3KaX-1HPYzHlpurhRcN2hWHvPXcHoKeXjkSSGP1BNUd3WRFDHixsKeQ";
-let validPlaylist = "notValid";
-let playlistName = "";
-let playlistId = "";
-let addSongOutput = "";
+    "Bearer BQAOUOgDG4Rq5lGK3BOaeF0wZO9N6q4fC-ZL-zXmWb7C1wwJ4vbnjfM_d77c9_tTq7LsgFKno7FtzlZ89G8CNMtdKK2QskemtcGhct_9bHsYbWMBdFQl68l34IEQlkk8atI4n8hX4UbfZ7RuLAAAJotuFBUZyej3KaX-1HPYzHlpurhRcN2hWHvPXcHoKeXjkSSGP1BNUd3WRFDHixsKeQ",
+  validPlaylist = "notValid",
+  playlistName = "",
+  playlistId = "",
+  addSongOutput = "";
 
 const LaunchRequestHandler = {
   canHandle(handlerInput) {
@@ -16,43 +19,40 @@ const LaunchRequestHandler = {
     );
   },
   async handle(handlerInput) {
-    let introOutput = "Hello and welcome to Playlist Helper. ";
-    accessToken = `Bearer ${handlerInput.requestEnvelope.context.System.user.accessToken}`;
-    util.accessToken = accessToken;
+    let introOutput = speech.launch.welcomeMsg;
     if (
-      handlerInput.requestEnvelope.context.System.user.accessToken == undefined
+      handlerInput.requestEnvelope.context.System.user.accessToken === undefined
     ) {
-      introOutput =
-        "You must link your Spotify account with this app. Please use the Alexa app to link your Spotify account.";
+      introOutput = speech.launch.unlinkedAccountErr;
       return handlerInput.responseBuilder
         .speak(introOutput)
         .withLinkAccountCard()
         .reprompt(introOutput)
         .getResponse();
-    } else {
-      await requests
-        .httpGETPlaylistAsync(util.getPlaylistsPath)
-        .then((playlistResponse) => {
-          console.log("Playlist Response: ", playlistResponse);
-          if (playlistResponse === undefined || playlistResponse.length == 0) {
-            console.log("No playlists found");
-            introOutput +=
-              "You have no created playlists on your Spotify account to add to. Please add a playlist before using this voice skill";
-          } else {
-            introOutput +=
-              "You can add songs you are listening to your Spotify playlist. Say Add song to.... then your playlist name";
-            requests.playlists.forEach(function (value, key) {
-              console.log(key + " = " + value);
-            });
-          }
-        })
-        .catch((e) => console.log(e));
-      console.log("Intro Output: ", introOutput);
-      return handlerInput.responseBuilder
-        .speak(introOutput)
-        .reprompt(introOutput)
-        .getResponse();
     }
+    accessToken = `Bearer ${handlerInput.requestEnvelope.context.System.user.accessToken}`;
+    util.accessToken = accessToken;
+
+    await requests
+      .httpGETPlaylistAsync(util.getPlaylistsPath)
+      .then((playlistResponse) => {
+        console.log("Playlist Response: ", playlistResponse);
+        if (playlistResponse === undefined || playlistResponse.length === 0) {
+          console.log("No playlists found");
+          introOutput += speech.launch.noPlaylistErr;
+        } else {
+          introOutput += speech.launch.successMsg;
+          requests.playlists.forEach(function (value, key) {
+            console.log(key + " = " + value);
+          });
+        }
+      })
+      .catch((e) => console.log(e));
+    console.log("Intro Output: ", introOutput);
+    return handlerInput.responseBuilder
+      .speak(introOutput)
+      .reprompt(introOutput)
+      .getResponse();
   },
 };
 
@@ -67,22 +67,17 @@ const RemoveSongIntent_Handler = {
   },
   handle(handlerInput) {
     const responseBuilder = handlerInput.responseBuilder;
-    let removeSongResponse =
-      "No previous song has been added. Therefore we were unable to remove from your given playlist";
-    console.log(
-      `Playlist Info: PlaylistID: ${playlistId},Playlist Name: ,${playlistName}`
-    );
-    console.log(
-      `Song Info: Song Name:,${requests.currentSong}, Song URI:  ${requests.trackURI}`
-    );
-    const removeSongPath = `/v1/playlists/${playlistId}/tracks`;
+    let removeSongResponse = "";
     if (requests.currentSong == "") {
       console.log("No song available to remove");
+      removeSongResponse = speech.remove.removeSongErr;
     } else {
+      const removeSongPath = `/v1/playlists/${playlistId}/tracks`;
+      requests.httpDELETE(removeSongPath);
       removeSongResponse = `Removing ${requests.currentSong} from ${playlistName}`;
       requests.currentSong = "No song playing";
+      console.log(removeSongResponse);
     }
-    requests.httpDELETE(removeSongPath);
     return responseBuilder
       .speak(removeSongResponse)
       .reprompt(removeSongResponse)
@@ -101,19 +96,14 @@ const AddSongIntent_Handler = {
   async handle(handlerInput) {
     const responseBuilder = handlerInput.responseBuilder;
     playlistName =
-      handlerInput.requestEnvelope.request.intent.slots.playlistname.value;
-    if (playlistName.toLocaleLowerCase().includes("playlist")) {
-      playlistName = playlistName.toLocaleLowerCase().replace("playlist ", "");
-      console.log("Playlist: " + playlistName);
-    } else if (playlistName.toLocaleLowerCase().includes("add song to")) {
-      playlistName = playlistName
-        .toLocaleLowerCase()
-        .replace("add song to ", "");
-      console.log("Playlist: " + playlistName);
+      handlerInput.requestEnvelope.request.intent.slots.playlistname.value.toLocaleLowerCase();
+    if (playlistName.includes("playlist")) {
+      playlistName = playlistName.replace("playlist ", "");
+    } else if (playlistName.includes("add song to")) {
+      playlistName = playlistName.replace("add song to ", "");
     }
     console.log("Choosen Playlist Name: " + playlistName);
-    addSongOutput = "You must add a song first";
-    const addSongAPLA = require("./APLA/addSong.json");
+    addSongOutput = speech.addSong.baseMsg;
     validPlaylist = "notValid";
     // Check for valid playlist name
     accessToken = `Bearer ${handlerInput.requestEnvelope.context.System.user.accessToken}`;
@@ -121,45 +111,40 @@ const AddSongIntent_Handler = {
     await requests
       .httpGETPlaylistAsync(util.getPlaylistsPath)
       .then((playlistResponse) => {
-        console.log("Playlist Response: ", playlistResponse);
         if (playlistResponse === undefined || playlistResponse.length == 0) {
           console.log("No playlists found");
-          addSongOutput =
-            "You have no created playlists on your Spotify account to add to. Please add a playlist before using this voice skill";
-        } else {
-          requests.playlists.forEach(function (value, key) {
-            if (
-              value
-                .toLocaleLowerCase()
-                .includes(playlistName.toLocaleLowerCase())
-            ) {
-              console.log("Valid playlistName", value);
-              playlistName = value;
-              playlistId = key;
-              validPlaylist = "valid";
-            } else {
-              addSongOutput = "Not a valid playlist please try again";
-              console.log("Invalid Playlist name", value);
-            }
-          });
+          addSongOutput = speech.addSong.noPlaylistErr;
         }
+        requests.playlists.forEach(function (value, key) {
+          if (value.toLocaleLowerCase().includes(playlistName)) {
+            console.log("Valid playlistName", value);
+            playlistName = value;
+            playlistId = key;
+            validPlaylist = "valid";
+          } else {
+            addSongOutput = speech.addSong.noValidPlaylistErr;
+            console.log("Invalid Playlist name", value);
+          }
+        });
       })
       .catch((e) => console.log(e));
     // If valid play list then make request to get current song
-    await requests
-      .httpGETSongPostSongAsync(util.getCurrentSongPath, playlistId)
-      .then((postSongResponse) => {
-        console.log("postSongResponse", postSongResponse);
-        if (requests.currentSong == "No song playing") {
-          addSongOutput = "You must be playing a song to add to your playlist";
-        } else if (
-          validPlaylist == "valid" &&
-          requests.currentSong != "No song playing"
-        ) {
-          addSongOutput = `Adding ${requests.currentSong} song to ${playlistName}`;
-        }
-      })
-      .catch((e) => console.log(e));
+    if (validPlaylist === "valid") {
+      await requests
+        .httpGETSongPostSongAsync(util.getCurrentSongPath, playlistId)
+        .then((postSongResponse) => {
+          console.log("postSongResponse", postSongResponse);
+          if (requests.currentSong == "No song playing") {
+            addSongOutput = speech.addSong.noSongPlayingErr;
+          } else if (
+            validPlaylist == "valid" &&
+            requests.currentSong != "No song playing"
+          ) {
+            addSongOutput = `Adding ${requests.currentSong} song to ${playlistName}`;
+          }
+        })
+        .catch((e) => console.log(e));
+    }
     console.log("Add Song Decision: " + addSongOutput);
     return responseBuilder
       .speak(addSongOutput)
@@ -189,16 +174,13 @@ const WhatPlaylistIntent_Handler = {
   handle(handlerInput) {
     const responseBuilder = handlerInput.responseBuilder;
     let whatPlaylistOutput = "";
-    if (requests.postSuccess != "") {
-      whatPlaylistOutput = `You just added ${requests.currentSong} to your playlist ${playlistName}`;
-    } else {
-      whatPlaylistOutput =
-        "Your playlist does not exist, please try adding to a valid playlist";
+    if (requests.postSuccess == "") {
+      whatPlaylistOutput = speech.whatPlaylist.playlistNotExistErr;
     }
     if (requests.currentSong == "No song playing") {
-      whatPlaylistOutput =
-        "No song has been added. You need to be playing a song on Spotify to add a song to your playlist. Please try the Add song command again";
+      whatPlaylistOutput = speech.whatPlaylist.noSongPlayingMsg;
     }
+    whatPlaylistOutput = `You just added ${requests.currentSong} to your playlist ${playlistName}`;
     console.log("What playlist output: ", whatPlaylistOutput);
     return responseBuilder.speak(whatPlaylistOutput).getResponse();
   },
@@ -238,8 +220,6 @@ const HelpIntentHandler = {
     );
   },
   handle(handlerInput) {
-    const helpAPLAReference = require("./APLA/help.json");
-
     return handlerInput.responseBuilder
       .speak()
       .addDirective({
