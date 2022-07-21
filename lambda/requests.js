@@ -9,10 +9,8 @@ let trackURI = "",
   postSongPath = "",
   userId = "",
   playlists = new Map();
-// methods
-module.exports.httpGETPlaylistAsync = async function httpGETPlaylistAsync(
-  path
-) {
+
+module.exports.getPlaylists = async function getPlaylists(path) {
   let response = "";
   try {
     response = await axios.get(`https://${host}${path}`, {
@@ -22,6 +20,7 @@ module.exports.httpGETPlaylistAsync = async function httpGETPlaylistAsync(
     });
   } catch (error) {
     console.log(error.response.body);
+    return error.response.body;
   }
   for (const playlist of response.data.items) {
     playlists.set(playlist.id, playlist.name);
@@ -30,7 +29,7 @@ module.exports.httpGETPlaylistAsync = async function httpGETPlaylistAsync(
   return response.data.items;
 };
 
-module.exports.httpGETUserProfile = async function httpGETUserProfile(
+module.exports.getUserProfile = async function getUserProfile(
   path,
   newPlaylistName
 ) {
@@ -62,44 +61,43 @@ module.exports.httpGETUserProfile = async function httpGETUserProfile(
   return response;
 };
 
-module.exports.httpGETSongPostSongAsync =
-  async function httpGETSongPostSongAsync(path, playlistId) {
-    let response = "";
-    try {
-      response = await axios.get("https://" + host + path, {
-        headers: {
-          Authorization: util.accessToken,
-        },
-      });
-      console.log("Song response:", response);
-      if (response.status == "204") {
-        response = "No song playing";
-        console.log("GET SONG: Error response: ", response);
-        exports.currentSong = response;
-      } else {
-        trackURI = response.data.item.uri;
-        postSongPath = `/v1/playlists/"${playlistId}/tracks?uris=${trackURI}`;
-        const currentSong = `${response.data.item.name} by ${response.data.item.artists[0].name}`;
-        console.log("Current song: ", currentSong);
-        exports.currentSong = currentSong;
-        exports.trackURI = trackURI;
-        try {
-          const postSuccess = await this.httpPostSongAsync(postSongPath);
-          console.log(postSuccess);
-          exports.postSuccess = "Success";
-        } catch (error) {
-          console.error(error);
-          exports.postSuccess = "Error";
-        }
+module.exports.addSong = async function addSong(path, playlistId) {
+  let response = "";
+  try {
+    response = await axios.get("https://" + host + path, {
+      headers: {
+        Authorization: util.accessToken,
+      },
+    });
+    console.log("Song response:", response);
+    if (response.status == "204") {
+      response = "No song playing";
+      console.log("GET SONG: Error response: ", response);
+      exports.currentSong = response;
+    } else {
+      trackURI = response.data.item.uri;
+      postSongPath = `/v1/playlists/${playlistId}/tracks?uris=${trackURI}`;
+      const currentSong = `${response.data.item.name} by ${response.data.item.artists[0].name}`;
+      console.log("Post Song Path: ", postSongPath);
+      exports.currentSong = currentSong;
+      exports.trackURI = trackURI;
+      try {
+        const postSuccess = await this.postSong(postSongPath);
+        console.log(postSuccess);
+        exports.postSuccess = "Success";
+      } catch (error) {
+        console.error(error);
+        exports.postSuccess = "Error";
       }
-    } catch (error) {
-      console.log(error);
     }
+  } catch (error) {
+    console.log(error);
+  }
 
-    return response;
-  };
+  return response;
+};
 
-module.exports.httpPostSongAsync = function httpPostSongAsync(path) {
+module.exports.postSong = function postSong(path) {
   const options = {
     method: "POST",
     hostname: host,
@@ -117,10 +115,6 @@ module.exports.httpPostSongAsync = function httpPostSongAsync(path) {
       res.on("error", reject);
       res.on("end", () => {
         if (res.statusCode >= 200 && res.statusCode <= 299) {
-          console.log(
-            "Request Succeeded. status:  " + res.statusCode + " body:",
-            body
-          );
           resolve({
             statusCode: res.statusCode,
             headers: res.headers,
@@ -179,12 +173,10 @@ module.exports.httpPOST = async function httpPOST(path, callback) {
     .request(options, (res) => {
       console.log("POST REQUEST STARTED");
       let responseString = "";
-
       //accept incoming data asynchronously
       res.on("data", (chunk) => {
         responseString = responseString + chunk;
       });
-
       //return the data when streaming is complete
       res.on("end", () => {
         callback(responseString);
@@ -213,12 +205,10 @@ module.exports.httpDELETE = function httpDELETE(path, callback) {
     .request(options, (res) => {
       console.log("DELETE REQUEST STARTED");
       let responseString = "";
-
       //accept incoming data asynchronously
       res.on("data", (chunk) => {
         responseString = responseString + chunk;
       });
-
       //return the data when streaming is complete
       res.on("end", () => {
         callback(responseString);
